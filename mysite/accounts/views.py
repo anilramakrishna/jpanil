@@ -8,34 +8,34 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
+from .decoraters import *
+from django.contrib.auth.models import Group
 
+@unauthenticated
 def loginform(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-    else:
-        if request.method=='POST':
-            username=request.POST.get('username')
-            password=request.POST.get('password')
-            user=authenticate(request,username=username,password=password)
-            if user is not None:
-                login(request,user)
-                return redirect('home')
-            else:
-                messages.info(request,'Username or Password is invalid')
+    if request.method=='POST':
+        username=request.POST.get('username')
+        password=request.POST.get('password')
+        user=authenticate(request,username=username,password=password)
+        if user is not None:
+            login(request,user)
+            return redirect('home')
+        else:
+            messages.info(request,'Username or Password is invalid')
     context={}
     return render(request,'accounts/login.html',context)
 
+@unauthenticated
 def registerform(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-    else:
-        form=createuserform()
-        if request.method=='POST':
-            form=createuserform(request.POST)
-            if form.is_valid():
-                form.save()
-                messages.success(request,'account created successfully')
-                return redirect('login')
+    form=createuserform()
+    if request.method=='POST':
+        form=createuserform(request.POST)
+        if form.is_valid():
+            user= form.save()
+            group=Group.objects.get(name='customer')
+            user.groups.add(group)
+            messages.success(request,'account created successfully')
+            return redirect('login')
     context={'form':form}
     return render(request,'accounts/register.html',context)
 
@@ -44,6 +44,7 @@ def logoutuser(request):
     return redirect('login')
 
 @login_required(login_url='login')
+@admin_only
 def home(request):
     customer=Customer.objects.all()
     orders=Order.objects.all()
@@ -52,6 +53,10 @@ def home(request):
     total_pending=orders.filter(status='pending').count()
     context={'customer':customer,'orders':orders,'total_orders':total_orders,'total_delivered':total_delivered,'total_pending':total_pending}
     return render(request,'accounts/dashboard.html',context) 
+
+def user_page(request):
+    context={}
+    return render(request,"accounts/userpage.html",context)
 
 @login_required(login_url='login')
 def products(request):

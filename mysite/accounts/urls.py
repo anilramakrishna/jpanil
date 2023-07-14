@@ -9,5 +9,6 @@ path('update_order/<str:pk>/',views.update_order,name="update_order"),
 path('delete_order/<str:pk>/',views.delete_order,name="delete_order"),
 path('login/',views.loginform,name='login'),
 path('register/',views.registerform,name='register'),
-path('logout/',views.logoutuser,name='logout')
+path('logout/',views.logoutuser,name='logout'),
+path('user/',views.user_page,name="user-page"),
 ]

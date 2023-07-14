@@ -13,8 +13,10 @@
     <nav class="main">
         <ul>
             <li class="head"><a href="#"> J.P Morgan</a></li>
+            {% if request.user.is_staff %}
             <li><a href="{% url 'home' %}">Dashboard</a></li>
             <li><a href="{% url 'product' %}">Products</a></li>
+            {% endif %}
             <li><a id="log" href="{% url 'logout' %}">Logout</a></li>
         </ul>
     </nav>
